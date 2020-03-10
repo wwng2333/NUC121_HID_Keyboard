@@ -5,100 +5,253 @@
                           AREA ||i.HID_UpdateKbData||, CODE, READONLY, ALIGN=2
 
                   HID_UpdateKbData PROC
-;;;88     
-;;;89     void HID_UpdateKbData(void)
-000000  b510              PUSH     {r4,lr}
-;;;90     {
-;;;91         int32_t i;
-;;;92         uint8_t *pu8Buf;
-;;;93         uint32_t u32Key = 0xF;
-000002  220f              MOVS     r2,#0xf
-;;;94         static uint32_t u32PreKey;
-;;;95     
-;;;96         if (g_u8EP2Ready)
-000004  4b13              LDR      r3,|L1.84|
-000006  781b              LDRB     r3,[r3,#0]  ; g_u8EP2Ready
-000008  2b00              CMP      r3,#0
-00000a  d021              BEQ      |L1.80|
-;;;97         {
-;;;98             pu8Buf = (uint8_t *)(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP2));
-00000c  4b12              LDR      r3,|L1.88|
-00000e  6a1b              LDR      r3,[r3,#0x20]
-000010  4c12              LDR      r4,|L1.92|
-000012  1919              ADDS     r1,r3,r4
-;;;99     
-;;;100            /* If PB.15 = 0, just report it is key 'a' */
-;;;101            u32Key = (PB->PIN & (1 << 15)) ? 0 : 1;
-000014  4b12              LDR      r3,|L1.96|
-000016  691b              LDR      r3,[r3,#0x10]
-000018  0bdc              LSRS     r4,r3,#15
-00001a  2301              MOVS     r3,#1
-00001c  43a3              BICS     r3,r3,r4
-00001e  461a              MOV      r2,r3
-;;;102    
-;;;103            if (u32Key == 0)
-000020  2a00              CMP      r2,#0
-000022  d10e              BNE      |L1.66|
-;;;104            {
-;;;105                for (i = 0; i < 8; i++)
-000024  2000              MOVS     r0,#0
-000026  e002              B        |L1.46|
-                  |L1.40|
-;;;106                {
-;;;107                    pu8Buf[i] = 0;
-000028  2300              MOVS     r3,#0
-00002a  540b              STRB     r3,[r1,r0]
-00002c  1c40              ADDS     r0,r0,#1              ;105
-                  |L1.46|
-00002e  2808              CMP      r0,#8                 ;105
-000030  dbfa              BLT      |L1.40|
-;;;108                }
-;;;109    
-;;;110                if (u32Key != u32PreKey)
-000032  4b0c              LDR      r3,|L1.100|
-000034  681b              LDR      r3,[r3,#0]  ; u32PreKey
-000036  429a              CMP      r2,r3
-000038  d00a              BEQ      |L1.80|
-;;;111                {
-;;;112                    /* Trigger to note key release */
-;;;113                    USBD_SET_PAYLOAD_LEN(EP2, 8);
-00003a  2308              MOVS     r3,#8
-00003c  4c06              LDR      r4,|L1.88|
-00003e  6263              STR      r3,[r4,#0x24]
-000040  e006              B        |L1.80|
-                  |L1.66|
-;;;114                }
-;;;115            }
-;;;116            else
-;;;117            {
-;;;118                u32PreKey = u32Key;
-000042  4b08              LDR      r3,|L1.100|
-000044  601a              STR      r2,[r3,#0]  ; u32PreKey
-;;;119                pu8Buf[2] = 0x04; /* Key A */
-000046  2304              MOVS     r3,#4
-000048  708b              STRB     r3,[r1,#2]
-;;;120                USBD_SET_PAYLOAD_LEN(EP2, 8);
-00004a  2308              MOVS     r3,#8
-00004c  4c02              LDR      r4,|L1.88|
-00004e  6263              STR      r3,[r4,#0x24]
-                  |L1.80|
-;;;121            }
-;;;122        }
-;;;123    }
-000050  bd10              POP      {r4,pc}
-;;;124    
+;;;87     
+;;;88     void HID_UpdateKbData(void)
+000000  b53e              PUSH     {r1-r5,lr}
+;;;89     {
+;;;90         int32_t i;
+;;;91         uint8_t *pu8Buf;
+;;;92         uint32_t u32Key = 0xF;
+000002  210f              MOVS     r1,#0xf
+;;;93         static uint32_t u32PreKey;
+;;;94     		//uint8_t key_numeral[10] = {0x27, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26};
+;;;95     		uint8_t key_numeral[10] = {0x62, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61};
+000004  a549              ADR      r5,|L1.300|
+000006  cd38              LDM      r5,{r3-r5}
+000008  4668              MOV      r0,sp
+00000a  c038              STM      r0!,{r3-r5}
+;;;96     
+;;;97         if (g_u8EP2Ready)
+00000c  4b4a              LDR      r3,|L1.312|
+00000e  781b              LDRB     r3,[r3,#0]  ; g_u8EP2Ready
+000010  2b00              CMP      r3,#0
+000012  d075              BEQ      |L1.256|
+;;;98         {
+;;;99             pu8Buf = (uint8_t *)(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP2));
+000014  4b49              LDR      r3,|L1.316|
+000016  6a1b              LDR      r3,[r3,#0x20]
+000018  4c49              LDR      r4,|L1.320|
+00001a  191a              ADDS     r2,r3,r4
+;;;100    
+;;;101            /* If PA.10 = 0, just report it is key 'a' and 'b' */
+;;;102            //u32Key = (PA->PIN & (1 << 10)) ? 0 : 1;
+;;;103    
+;;;104    				u32Key = 0;
+00001c  2100              MOVS     r1,#0
+;;;105    				if(!PD2)	 u32Key = key_numeral[1];
+00001e  4b49              LDR      r3,|L1.324|
+000020  689b              LDR      r3,[r3,#8]
+000022  2b00              CMP      r3,#0
+000024  d101              BNE      |L1.42|
+000026  466b              MOV      r3,sp
+000028  7859              LDRB     r1,[r3,#1]
+                  |L1.42|
+;;;106    				if(!PD1)	 u32Key = key_numeral[2];
+00002a  4b46              LDR      r3,|L1.324|
+00002c  685b              LDR      r3,[r3,#4]
+00002e  2b00              CMP      r3,#0
+000030  d101              BNE      |L1.54|
+000032  466b              MOV      r3,sp
+000034  7899              LDRB     r1,[r3,#2]
+                  |L1.54|
+;;;107    				if(!PC10)	 u32Key = key_numeral[3];
+000036  4b43              LDR      r3,|L1.324|
+000038  3b40              SUBS     r3,r3,#0x40
+00003a  6a9b              LDR      r3,[r3,#0x28]
+00003c  2b00              CMP      r3,#0
+00003e  d101              BNE      |L1.68|
+000040  466b              MOV      r3,sp
+000042  78d9              LDRB     r1,[r3,#3]
+                  |L1.68|
+;;;108    				if(!PB14)	 u32Key = key_numeral[4];
+000044  4b3f              LDR      r3,|L1.324|
+000046  3b80              SUBS     r3,r3,#0x80
+000048  6b9b              LDR      r3,[r3,#0x38]
+00004a  2b00              CMP      r3,#0
+00004c  d101              BNE      |L1.82|
+00004e  466b              MOV      r3,sp
+000050  7919              LDRB     r1,[r3,#4]
+                  |L1.82|
+;;;109    				if(!PD3)	 u32Key = key_numeral[5];
+000052  4b3c              LDR      r3,|L1.324|
+000054  68db              LDR      r3,[r3,#0xc]
+000056  2b00              CMP      r3,#0
+000058  d101              BNE      |L1.94|
+00005a  466b              MOV      r3,sp
+00005c  7959              LDRB     r1,[r3,#5]
+                  |L1.94|
+;;;110    				if(!PC9)	 u32Key = key_numeral[6];
+00005e  4b39              LDR      r3,|L1.324|
+000060  3b40              SUBS     r3,r3,#0x40
+000062  6a5b              LDR      r3,[r3,#0x24]
+000064  2b00              CMP      r3,#0
+000066  d101              BNE      |L1.108|
+000068  466b              MOV      r3,sp
+00006a  7999              LDRB     r1,[r3,#6]
+                  |L1.108|
+;;;111    				if(!PA11)	 u32Key = key_numeral[7];
+00006c  4b35              LDR      r3,|L1.324|
+00006e  3bc0              SUBS     r3,r3,#0xc0
+000070  6adb              LDR      r3,[r3,#0x2c]
+000072  2b00              CMP      r3,#0
+000074  d101              BNE      |L1.122|
+000076  466b              MOV      r3,sp
+000078  79d9              LDRB     r1,[r3,#7]
+                  |L1.122|
+;;;112    				if(!PB5)	 u32Key = key_numeral[8];
+00007a  4b32              LDR      r3,|L1.324|
+00007c  3b80              SUBS     r3,r3,#0x80
+00007e  695b              LDR      r3,[r3,#0x14]
+000080  2b00              CMP      r3,#0
+000082  d101              BNE      |L1.136|
+000084  466b              MOV      r3,sp
+000086  7a19              LDRB     r1,[r3,#8]
+                  |L1.136|
+;;;113    				if(!PC1)	 u32Key = key_numeral[9];
+000088  4b2e              LDR      r3,|L1.324|
+00008a  3b40              SUBS     r3,r3,#0x40
+00008c  685b              LDR      r3,[r3,#4]
+00008e  2b00              CMP      r3,#0
+000090  d101              BNE      |L1.150|
+000092  466b              MOV      r3,sp
+000094  7a59              LDRB     r1,[r3,#9]
+                  |L1.150|
+;;;114    				if(!PC8)	 u32Key = key_numeral[0];
+000096  4b2b              LDR      r3,|L1.324|
+000098  3b40              SUBS     r3,r3,#0x40
+00009a  6a1b              LDR      r3,[r3,#0x20]
+00009c  2b00              CMP      r3,#0
+00009e  d101              BNE      |L1.164|
+0000a0  466b              MOV      r3,sp
+0000a2  7819              LDRB     r1,[r3,#0]
+                  |L1.164|
+;;;115    				if(!PA10)	 u32Key = 0x53; //Keypad Num Lock and Clear
+0000a4  4b27              LDR      r3,|L1.324|
+0000a6  3bc0              SUBS     r3,r3,#0xc0
+0000a8  6a9b              LDR      r3,[r3,#0x28]
+0000aa  2b00              CMP      r3,#0
+0000ac  d100              BNE      |L1.176|
+0000ae  2153              MOVS     r1,#0x53
+                  |L1.176|
+;;;116    				if(!PB4)	 u32Key = 0x54; //Keypad /
+0000b0  4b24              LDR      r3,|L1.324|
+0000b2  3b80              SUBS     r3,r3,#0x80
+0000b4  691b              LDR      r3,[r3,#0x10]
+0000b6  2b00              CMP      r3,#0
+0000b8  d100              BNE      |L1.188|
+0000ba  2154              MOVS     r1,#0x54
+                  |L1.188|
+;;;117    				if(!PC3)	 u32Key = 0x55; //Keypad *
+0000bc  4b21              LDR      r3,|L1.324|
+0000be  3b40              SUBS     r3,r3,#0x40
+0000c0  68db              LDR      r3,[r3,#0xc]
+0000c2  2b00              CMP      r3,#0
+0000c4  d100              BNE      |L1.200|
+0000c6  2155              MOVS     r1,#0x55
+                  |L1.200|
+;;;118    				if(!PC2)	 u32Key = 0x56;	//Keypad -
+0000c8  4b1e              LDR      r3,|L1.324|
+0000ca  3b40              SUBS     r3,r3,#0x40
+0000cc  689b              LDR      r3,[r3,#8]
+0000ce  2b00              CMP      r3,#0
+0000d0  d100              BNE      |L1.212|
+0000d2  2156              MOVS     r1,#0x56
+                  |L1.212|
+;;;119    				if(!PC0)	 u32Key = 0x57; //Keypad +
+0000d4  4b1b              LDR      r3,|L1.324|
+0000d6  3b40              SUBS     r3,r3,#0x40
+0000d8  681b              LDR      r3,[r3,#0]
+0000da  2b00              CMP      r3,#0
+0000dc  d100              BNE      |L1.224|
+0000de  2157              MOVS     r1,#0x57
+                  |L1.224|
+;;;120    				if(!PC12)	 u32Key = 0x58; //Keypad ENTER
+0000e0  4b18              LDR      r3,|L1.324|
+0000e2  3b40              SUBS     r3,r3,#0x40
+0000e4  6b1b              LDR      r3,[r3,#0x30]
+0000e6  2b00              CMP      r3,#0
+0000e8  d100              BNE      |L1.236|
+0000ea  2158              MOVS     r1,#0x58
+                  |L1.236|
+;;;121    				if(!PC11)	 u32Key = 0x63; //Keypad . and Delete
+0000ec  4b15              LDR      r3,|L1.324|
+0000ee  3b40              SUBS     r3,r3,#0x40
+0000f0  6adb              LDR      r3,[r3,#0x2c]
+0000f2  2b00              CMP      r3,#0
+0000f4  d100              BNE      |L1.248|
+0000f6  2163              MOVS     r1,#0x63
+                  |L1.248|
+;;;122    			
+;;;123            if (u32Key == 0)
+0000f8  2900              CMP      r1,#0
+0000fa  d10f              BNE      |L1.284|
+;;;124            {
+;;;125                for (i = 0; i < 8; i++)
+0000fc  2000              MOVS     r0,#0
+0000fe  e003              B        |L1.264|
+                  |L1.256|
+000100  e00b              B        |L1.282|
+                  |L1.258|
+;;;126                {
+;;;127                    pu8Buf[i] = 0;
+000102  2300              MOVS     r3,#0
+000104  5413              STRB     r3,[r2,r0]
+000106  1c40              ADDS     r0,r0,#1              ;125
+                  |L1.264|
+000108  2808              CMP      r0,#8                 ;125
+00010a  dbfa              BLT      |L1.258|
+;;;128                }
+;;;129    
+;;;130                if (u32Key != u32PreKey)
+00010c  4b0e              LDR      r3,|L1.328|
+00010e  681b              LDR      r3,[r3,#0]  ; u32PreKey
+000110  4299              CMP      r1,r3
+000112  d009              BEQ      |L1.296|
+;;;131                {
+;;;132                    /* Trigger to note key release */
+;;;133                    USBD_SET_PAYLOAD_LEN(EP2, 8);
+000114  2308              MOVS     r3,#8
+000116  4c09              LDR      r4,|L1.316|
+000118  6263              STR      r3,[r4,#0x24]
+                  |L1.282|
+00011a  e005              B        |L1.296|
+                  |L1.284|
+;;;134                }
+;;;135            }
+;;;136            else
+;;;137            {
+;;;138                u32PreKey = u32Key;
+00011c  4b0a              LDR      r3,|L1.328|
+00011e  6019              STR      r1,[r3,#0]  ; u32PreKey
+;;;139    						pu8Buf[2] = u32Key;
+000120  7091              STRB     r1,[r2,#2]
+;;;140                USBD_SET_PAYLOAD_LEN(EP2, 8);
+000122  2308              MOVS     r3,#8
+000124  4c05              LDR      r4,|L1.316|
+000126  6263              STR      r3,[r4,#0x24]
+                  |L1.296|
+;;;141            }
+;;;142        }
+;;;143    }
+000128  bd3e              POP      {r1-r5,pc}
+;;;144    
                           ENDP
 
-000052  0000              DCW      0x0000
-                  |L1.84|
+00012a  0000              DCW      0x0000
+                  |L1.300|
+00012c  62595a5b          DCB      "bYZ[\\]^_`a",0
+000130  5c5d5e5f
+000134  606100  
+000137  00                DCB      0
+                  |L1.312|
                           DCD      g_u8EP2Ready
-                  |L1.88|
+                  |L1.316|
                           DCD      0x40060500
-                  |L1.92|
+                  |L1.320|
                           DCD      0x40060100
-                  |L1.96|
-                          DCD      0x50004040
-                  |L1.100|
+                  |L1.324|
+                          DCD      0x500042c0
+                  |L1.328|
                           DCD      u32PreKey
 
                           AREA ||i.SYS_Init||, CODE, READONLY, ALIGN=2
@@ -251,14 +404,14 @@
                           AREA ||i.main||, CODE, READONLY, ALIGN=2
 
                   main PROC
-;;;127    /*---------------------------------------------------------------------------------------------------------*/
-;;;128    int32_t main(void)
+;;;147    /*---------------------------------------------------------------------------------------------------------*/
+;;;148    int32_t main(void)
 000000  bf00              NOP      
 000002  bf00              NOP      
 000004  bf00              NOP      
                   |L4.6|
 000006  2059              MOVS     r0,#0x59
-000008  4928              LDR      r1,|L4.172|
+000008  492a              LDR      r1,|L4.180|
 00000a  6008              STR      r0,[r1,#0]
 00000c  2016              MOVS     r0,#0x16
 00000e  6008              STR      r0,[r1,#0]
@@ -269,169 +422,177 @@
 000018  2800              CMP      r0,#0
 00001a  d0f4              BEQ      |L4.6|
 00001c  bf00              NOP      
-;;;129    {
-;;;130    #if CRYSTAL_LESS
-;;;131        uint32_t u32TrimInit;
-;;;132    #endif
-;;;133        /* Unlock protected registers */
-;;;134        SYS_UnlockReg();
-;;;135    
-;;;136        SYS_Init();
-00001e  f7fffffe          BL       SYS_Init
-;;;137    	
-;;;138        /**
-;;;139    	UART0_Init();
-;;;140    
-;;;141        printf("\n");
-;;;142        printf("+--------------------------------------------------------+\n");
-;;;143        printf("|          NuMicro USB HID Keyboard Sample Code          |\n");
-;;;144        printf("+--------------------------------------------------------+\n");
-;;;145        printf("If PB.15 = 0, just report it is key 'a'.\n");
-;;;146    	**/
-;;;147    
-;;;148        USBD_Open(&gsInfo, HID_ClassRequest, NULL);
-000022  2200              MOVS     r2,#0
-000024  4922              LDR      r1,|L4.176|
-000026  4823              LDR      r0,|L4.180|
-000028  f7fffffe          BL       USBD_Open
-;;;149    
-;;;150        /* Endpoint configuration */
-;;;151        HID_Init();
-00002c  f7fffffe          BL       HID_Init
-;;;152        USBD_Start();
-000030  f7fffffe          BL       USBD_Start
-;;;153    
-;;;154        NVIC_EnableIRQ(USBD_IRQn);
-000034  2017              MOVS     r0,#0x17
-000036  2101              MOVS     r1,#1
-000038  4081              LSLS     r1,r1,r0
-00003a  4a1f              LDR      r2,|L4.184|
-00003c  6011              STR      r1,[r2,#0]
-00003e  bf00              NOP      
+;;;149    {
+;;;150    #if CRYSTAL_LESS
+;;;151        uint32_t u32TrimInit;
+;;;152    #endif
+;;;153        /* Unlock protected registers */
+;;;154        SYS_UnlockReg();
 ;;;155    
-;;;156        /* start to IN data */
-;;;157        g_u8EP2Ready = 1;
-000040  2001              MOVS     r0,#1
-000042  491e              LDR      r1,|L4.188|
-000044  7008              STRB     r0,[r1,#0]
-;;;158    
-;;;159    #if CRYSTAL_LESS
-;;;160        /* Backup default trim value */
-;;;161        u32TrimInit = M32(TRIM_INIT);
-000046  4819              LDR      r0,|L4.172|
-000048  6904              LDR      r4,[r0,#0x10]
+;;;156        SYS_Init();
+00001e  f7fffffe          BL       SYS_Init
+;;;157    	
+;;;158    		PC13 = 1; //NUM LOCK LED
+000022  2001              MOVS     r0,#1
+000024  4924              LDR      r1,|L4.184|
+000026  6348              STR      r0,[r1,#0x34]
+;;;159    	
+;;;160        /**
+;;;161    	UART0_Init();
 ;;;162    
-;;;163        /* Clear SOF */
-;;;164        USBD_CLR_INT_FLAG(USBD_INTSTS_SOFIF_Msk);
-00004a  2010              MOVS     r0,#0x10
-00004c  491c              LDR      r1,|L4.192|
-00004e  6048              STR      r0,[r1,#4]
-;;;165    #endif
-;;;166    
-;;;167        while (1)
-000050  e02b              B        |L4.170|
-                  |L4.82|
-;;;168        {
-;;;169    #if CRYSTAL_LESS
-;;;170    
-;;;171            /* Start USB trim function if it is not enabled. */
-;;;172            if ((SYS->IRCTCTL & SYS_IRCTCTL_FREQSEL_Msk) != 0x2)
-000052  4816              LDR      r0,|L4.172|
-000054  3880              SUBS     r0,r0,#0x80
-000056  6800              LDR      r0,[r0,#0]
-000058  0780              LSLS     r0,r0,#30
-00005a  0f80              LSRS     r0,r0,#30
-00005c  2802              CMP      r0,#2
-00005e  d010              BEQ      |L4.130|
-;;;173            {
-;;;174                /* Start USB trim only when USB signal arrived */
-;;;175                if (USBD->INTSTS & USBD_INTSTS_SOFIF_Msk)
-000060  4817              LDR      r0,|L4.192|
-000062  6840              LDR      r0,[r0,#4]
-000064  2110              MOVS     r1,#0x10
-000066  4008              ANDS     r0,r0,r1
-000068  2800              CMP      r0,#0
-00006a  d00a              BEQ      |L4.130|
-;;;176                {
-;;;177                    /* Clear SOF */
-;;;178                    USBD_CLR_INT_FLAG(USBD_INTSTS_SOFIF_Msk);
-00006c  2010              MOVS     r0,#0x10
-00006e  4914              LDR      r1,|L4.192|
-000070  6048              STR      r0,[r1,#4]
-;;;179    
-;;;180                    /* Enable USB clock trim function */
-;;;181                    SYS->IRCTCTL |= (SYS_IRCTCTL_REFCKSEL_Msk | 0x2);
-000072  480e              LDR      r0,|L4.172|
-000074  3880              SUBS     r0,r0,#0x80
-000076  6800              LDR      r0,[r0,#0]
-000078  4912              LDR      r1,|L4.196|
-00007a  4308              ORRS     r0,r0,r1
-00007c  490b              LDR      r1,|L4.172|
-00007e  3980              SUBS     r1,r1,#0x80
-000080  6008              STR      r0,[r1,#0]
-                  |L4.130|
-;;;182                }
-;;;183            }
+;;;163        printf("\n");
+;;;164        printf("+--------------------------------------------------------+\n");
+;;;165        printf("|          NuMicro USB HID Keyboard Sample Code          |\n");
+;;;166        printf("+--------------------------------------------------------+\n");
+;;;167        printf("If PB.15 = 0, just report it is key 'a'.\n");
+;;;168    	**/
+;;;169    
+;;;170        USBD_Open(&gsInfo, HID_ClassRequest, NULL);
+000028  2200              MOVS     r2,#0
+00002a  4924              LDR      r1,|L4.188|
+00002c  4824              LDR      r0,|L4.192|
+00002e  f7fffffe          BL       USBD_Open
+;;;171    
+;;;172        /* Endpoint configuration */
+;;;173        HID_Init();
+000032  f7fffffe          BL       HID_Init
+;;;174        USBD_Start();
+000036  f7fffffe          BL       USBD_Start
+;;;175    
+;;;176        NVIC_EnableIRQ(USBD_IRQn);
+00003a  2017              MOVS     r0,#0x17
+00003c  2101              MOVS     r1,#1
+00003e  4081              LSLS     r1,r1,r0
+000040  4a20              LDR      r2,|L4.196|
+000042  6011              STR      r1,[r2,#0]
+000044  bf00              NOP      
+;;;177    
+;;;178        /* start to IN data */
+;;;179        g_u8EP2Ready = 1;
+000046  2001              MOVS     r0,#1
+000048  491f              LDR      r1,|L4.200|
+00004a  7008              STRB     r0,[r1,#0]
+;;;180    
+;;;181    #if CRYSTAL_LESS
+;;;182        /* Backup default trim value */
+;;;183        u32TrimInit = M32(TRIM_INIT);
+00004c  4819              LDR      r0,|L4.180|
+00004e  6904              LDR      r4,[r0,#0x10]
 ;;;184    
-;;;185            /* Disable USB Trim when any error found */
-;;;186            if (SYS->IRCTISTS & (SYS_IRCTISTS_CLKERRIF_Msk | SYS_IRCTISTS_TFAILIF_Msk))
-000082  480a              LDR      r0,|L4.172|
-000084  3880              SUBS     r0,r0,#0x80
-000086  6880              LDR      r0,[r0,#8]
-000088  2106              MOVS     r1,#6
-00008a  4008              ANDS     r0,r0,r1
-00008c  2800              CMP      r0,#0
-00008e  d00a              BEQ      |L4.166|
-;;;187            {
-;;;188                /* Init TRIM */
-;;;189                M32(TRIM_INIT) = u32TrimInit;
-000090  4806              LDR      r0,|L4.172|
-000092  6104              STR      r4,[r0,#0x10]
-;;;190    
-;;;191                /* Disable USB clock trim function */
-;;;192                SYS->IRCTCTL = 0;
-000094  2000              MOVS     r0,#0
-000096  4905              LDR      r1,|L4.172|
-000098  3980              SUBS     r1,r1,#0x80
-00009a  6008              STR      r0,[r1,#0]
-;;;193    
-;;;194                /* Clear trim error flags */
-;;;195                SYS->IRCTISTS = SYS_IRCTISTS_CLKERRIF_Msk | SYS_IRCTISTS_TFAILIF_Msk;
-00009c  2006              MOVS     r0,#6
-00009e  6088              STR      r0,[r1,#8]
-;;;196    
-;;;197                /* Clear SOF */
-;;;198                USBD_CLR_INT_FLAG(USBD_INTSTS_SOFIF_Msk);
-0000a0  2010              MOVS     r0,#0x10
-0000a2  4907              LDR      r1,|L4.192|
-0000a4  6048              STR      r0,[r1,#4]
-                  |L4.166|
-;;;199    
-;;;200            }
+;;;185        /* Clear SOF */
+;;;186        USBD_CLR_INT_FLAG(USBD_INTSTS_SOFIF_Msk);
+000050  2010              MOVS     r0,#0x10
+000052  491e              LDR      r1,|L4.204|
+000054  6048              STR      r0,[r1,#4]
+;;;187    #endif
+;;;188    
+;;;189        while (1)
+000056  e02b              B        |L4.176|
+                  |L4.88|
+;;;190        {
+;;;191    #if CRYSTAL_LESS
+;;;192    
+;;;193            /* Start USB trim function if it is not enabled. */
+;;;194            if ((SYS->IRCTCTL & SYS_IRCTCTL_FREQSEL_Msk) != 0x2)
+000058  4816              LDR      r0,|L4.180|
+00005a  3880              SUBS     r0,r0,#0x80
+00005c  6800              LDR      r0,[r0,#0]
+00005e  0780              LSLS     r0,r0,#30
+000060  0f80              LSRS     r0,r0,#30
+000062  2802              CMP      r0,#2
+000064  d010              BEQ      |L4.136|
+;;;195            {
+;;;196                /* Start USB trim only when USB signal arrived */
+;;;197                if (USBD->INTSTS & USBD_INTSTS_SOFIF_Msk)
+000066  4819              LDR      r0,|L4.204|
+000068  6840              LDR      r0,[r0,#4]
+00006a  2110              MOVS     r1,#0x10
+00006c  4008              ANDS     r0,r0,r1
+00006e  2800              CMP      r0,#0
+000070  d00a              BEQ      |L4.136|
+;;;198                {
+;;;199                    /* Clear SOF */
+;;;200                    USBD_CLR_INT_FLAG(USBD_INTSTS_SOFIF_Msk);
+000072  2010              MOVS     r0,#0x10
+000074  4915              LDR      r1,|L4.204|
+000076  6048              STR      r0,[r1,#4]
 ;;;201    
-;;;202    #endif
-;;;203            HID_UpdateKbData();
-0000a6  f7fffffe          BL       HID_UpdateKbData
-                  |L4.170|
-0000aa  e7d2              B        |L4.82|
-;;;204        }
-;;;205    }
+;;;202                    /* Enable USB clock trim function */
+;;;203                    SYS->IRCTCTL |= (SYS_IRCTCTL_REFCKSEL_Msk | 0x2);
+000078  480e              LDR      r0,|L4.180|
+00007a  3880              SUBS     r0,r0,#0x80
+00007c  6800              LDR      r0,[r0,#0]
+00007e  4914              LDR      r1,|L4.208|
+000080  4308              ORRS     r0,r0,r1
+000082  490c              LDR      r1,|L4.180|
+000084  3980              SUBS     r1,r1,#0x80
+000086  6008              STR      r0,[r1,#0]
+                  |L4.136|
+;;;204                }
+;;;205            }
 ;;;206    
+;;;207            /* Disable USB Trim when any error found */
+;;;208            if (SYS->IRCTISTS & (SYS_IRCTISTS_CLKERRIF_Msk | SYS_IRCTISTS_TFAILIF_Msk))
+000088  480a              LDR      r0,|L4.180|
+00008a  3880              SUBS     r0,r0,#0x80
+00008c  6880              LDR      r0,[r0,#8]
+00008e  2106              MOVS     r1,#6
+000090  4008              ANDS     r0,r0,r1
+000092  2800              CMP      r0,#0
+000094  d00a              BEQ      |L4.172|
+;;;209            {
+;;;210                /* Init TRIM */
+;;;211                M32(TRIM_INIT) = u32TrimInit;
+000096  4807              LDR      r0,|L4.180|
+000098  6104              STR      r4,[r0,#0x10]
+;;;212    
+;;;213                /* Disable USB clock trim function */
+;;;214                SYS->IRCTCTL = 0;
+00009a  2000              MOVS     r0,#0
+00009c  4905              LDR      r1,|L4.180|
+00009e  3980              SUBS     r1,r1,#0x80
+0000a0  6008              STR      r0,[r1,#0]
+;;;215    
+;;;216                /* Clear trim error flags */
+;;;217                SYS->IRCTISTS = SYS_IRCTISTS_CLKERRIF_Msk | SYS_IRCTISTS_TFAILIF_Msk;
+0000a2  2006              MOVS     r0,#6
+0000a4  6088              STR      r0,[r1,#8]
+;;;218    
+;;;219                /* Clear SOF */
+;;;220                USBD_CLR_INT_FLAG(USBD_INTSTS_SOFIF_Msk);
+0000a6  2010              MOVS     r0,#0x10
+0000a8  4908              LDR      r1,|L4.204|
+0000aa  6048              STR      r0,[r1,#4]
+                  |L4.172|
+;;;221    
+;;;222            }
+;;;223    
+;;;224    #endif
+;;;225            HID_UpdateKbData();
+0000ac  f7fffffe          BL       HID_UpdateKbData
+                  |L4.176|
+0000b0  e7d2              B        |L4.88|
+;;;226        }
+;;;227    }
+;;;228    
                           ENDP
 
-                  |L4.172|
-                          DCD      0x50000100
-                  |L4.176|
-                          DCD      HID_ClassRequest
+0000b2  0000              DCW      0x0000
                   |L4.180|
-                          DCD      gsInfo
+                          DCD      0x50000100
                   |L4.184|
-                          DCD      0xe000e100
+                          DCD      0x50004280
                   |L4.188|
-                          DCD      g_u8EP2Ready
+                          DCD      HID_ClassRequest
                   |L4.192|
-                          DCD      0x40060000
+                          DCD      gsInfo
                   |L4.196|
+                          DCD      0xe000e100
+                  |L4.200|
+                          DCD      g_u8EP2Ready
+                  |L4.204|
+                          DCD      0x40060000
+                  |L4.208|
                           DCD      0x00000402
 
                           AREA ||.data||, DATA, ALIGN=2

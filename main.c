@@ -85,21 +85,41 @@ void UART0_Init(void)
     UART0->LINE = UART_WORD_LEN_8 | UART_PARITY_NONE | UART_STOP_BIT_1;
 }
 
-
 void HID_UpdateKbData(void)
 {
     int32_t i;
     uint8_t *pu8Buf;
     uint32_t u32Key = 0xF;
     static uint32_t u32PreKey;
+		//uint8_t key_numeral[10] = {0x27, 0x1E, 0x1F, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26};
+		uint8_t key_numeral[10] = {0x62, 0x59, 0x5A, 0x5B, 0x5C, 0x5D, 0x5E, 0x5F, 0x60, 0x61};
 
     if (g_u8EP2Ready)
     {
         pu8Buf = (uint8_t *)(USBD_BUF_BASE + USBD_GET_EP_BUF_ADDR(EP2));
 
-        /* If PB.15 = 0, just report it is key 'a' */
-        u32Key = (PB->PIN & (1 << 15)) ? 0 : 1;
+        /* If PA.10 = 0, just report it is key 'a' and 'b' */
+        //u32Key = (PA->PIN & (1 << 10)) ? 0 : 1;
 
+				u32Key = 0;
+				if(!PD2)	 u32Key = key_numeral[1];
+				if(!PD1)	 u32Key = key_numeral[2];
+				if(!PC10)	 u32Key = key_numeral[3];
+				if(!PB14)	 u32Key = key_numeral[4];
+				if(!PD3)	 u32Key = key_numeral[5];
+				if(!PC9)	 u32Key = key_numeral[6];
+				if(!PA11)	 u32Key = key_numeral[7];
+				if(!PB5)	 u32Key = key_numeral[8];
+				if(!PC1)	 u32Key = key_numeral[9];
+				if(!PC8)	 u32Key = key_numeral[0];
+				if(!PA10)	 u32Key = 0x53; //Keypad Num Lock and Clear
+				if(!PB4)	 u32Key = 0x54; //Keypad /
+				if(!PC3)	 u32Key = 0x55; //Keypad *
+				if(!PC2)	 u32Key = 0x56;	//Keypad -
+				if(!PC0)	 u32Key = 0x57; //Keypad +
+				if(!PC12)	 u32Key = 0x58; //Keypad ENTER
+				if(!PC11)	 u32Key = 0x63; //Keypad . and Delete
+			
         if (u32Key == 0)
         {
             for (i = 0; i < 8; i++)
@@ -116,7 +136,7 @@ void HID_UpdateKbData(void)
         else
         {
             u32PreKey = u32Key;
-            pu8Buf[2] = 0x04; /* Key A */
+						pu8Buf[2] = u32Key;
             USBD_SET_PAYLOAD_LEN(EP2, 8);
         }
     }
@@ -134,6 +154,8 @@ int32_t main(void)
     SYS_UnlockReg();
 
     SYS_Init();
+	
+		PC13 = 1; //NUM LOCK LED
 	
     /**
 	UART0_Init();
