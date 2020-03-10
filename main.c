@@ -9,10 +9,11 @@
  ******************************************************************************/
 #include <stdio.h>
 #include "StdDriver\NUC121.h"
+#include "StdDriver\inc\gpio.h"
 #include "hid_kb.h"
 
 #define CRYSTAL_LESS    1
-#define TRIM_INIT           (SYS_BASE+0x110)
+#define TRIM_INIT				(SYS_BASE+0x110)
 
 /*--------------------------------------------------------------------------*/
 uint8_t volatile g_u8EP2Ready = 0;
@@ -68,21 +69,6 @@ void SYS_Init(void)
     SYS->GPB_MFPL = SYS_GPB_MFPL_PB0MFP_UART0_RXD | SYS_GPB_MFPL_PB1MFP_UART0_TXD;
 
 
-}
-
-
-void UART0_Init(void)
-{
-    /*---------------------------------------------------------------------------------------------------------*/
-    /* Init UART                                                                                               */
-    /*---------------------------------------------------------------------------------------------------------*/
-    /* Reset IP */
-    SYS->IPRST1 |=  SYS_IPRST1_UART0RST_Msk;
-    SYS->IPRST1 &= ~SYS_IPRST1_UART0RST_Msk;
-
-    /* Configure UART0 and set UART0 Baudrate */
-    UART0->BAUD = UART_BAUD_MODE2 | UART_BAUD_MODE2_DIVIDER(__HIRC_DIV2, 115200);
-    UART0->LINE = UART_WORD_LEN_8 | UART_PARITY_NONE | UART_STOP_BIT_1;
 }
 
 void HID_UpdateKbData(void)
@@ -146,26 +132,14 @@ void HID_UpdateKbData(void)
 /*  Main Function                                                                                          */
 /*---------------------------------------------------------------------------------------------------------*/
 int32_t main(void)
-{
+{	
 #if CRYSTAL_LESS
     uint32_t u32TrimInit;
 #endif
-    /* Unlock protected registers */
-    SYS_UnlockReg();
+    
+    SYS_UnlockReg(); // Unlock protected registers
 
     SYS_Init();
-	
-		PC13 = 1; //NUM LOCK LED
-	
-    /**
-	UART0_Init();
-
-    printf("\n");
-    printf("+--------------------------------------------------------+\n");
-    printf("|          NuMicro USB HID Keyboard Sample Code          |\n");
-    printf("+--------------------------------------------------------+\n");
-    printf("If PB.15 = 0, just report it is key 'a'.\n");
-	**/
 
     USBD_Open(&gsInfo, HID_ClassRequest, NULL);
 

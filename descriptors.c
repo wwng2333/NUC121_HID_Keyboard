@@ -20,8 +20,8 @@ const uint8_t HID_KeyboardReportDescriptor[] =
     0x09, 0x06,     /* Usage(Keyboard) */
     0xA1, 0x01,     /* Collection(Application) */
     0x05, 0x07,         /* Usage Page(Keyboard/Keypad) */
-    0x19, 0xE0,         /* Usage Minimum(0xE0) */
-    0x29, 0xE7,         /* Usage Maximum(0xE7) */
+    0x19, 0xE0,         /* Usage Minimum(0xE0) */ //Keyboard LeftControl
+    0x29, 0xE7,         /* Usage Maximum(0xE7) */ //Keyboard Right GUI
     0x15, 0x00,         /* Logical Minimum(0x0) */
     0x25, 0x01,         /* Logical Maximum(0x1) */
     0x75, 0x01,         /* Report Size(0x1) */
@@ -33,8 +33,8 @@ const uint8_t HID_KeyboardReportDescriptor[] =
     0x95, 0x05,         /* Report Count(0x5) */
     0x75, 0x01,         /* Report Size(0x1) */
     0x05, 0x08,         /* Usage Page(LEDs) */
-    0x19, 0x01,         /* Usage Minimum(0x1) */
-    0x29, 0x05,         /* Usage Maximum(0x5) */
+    0x19, 0x01,         /* Usage Minimum(0x1) */ //Num Lock
+    0x29, 0x05,         /* Usage Maximum(0x5) */ //Kana
     0x91, 0x02,         /* Output (Data) => LED report */
     0x95, 0x01,         /* Report Count(0x1) */
     0x75, 0x03,         /* Report Size(0x3) */

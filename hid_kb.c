@@ -11,9 +11,9 @@
 #include "StdDriver\NUC121.h"
 #include "StdDriver\inc\usbd.h"
 #include "hid_kb.h"
+#include "io_ctrl.h"
 
-
-
+volatile	uint8_t 	LED_Status[2] = {0};			// LED Status
 
 void USBD_IRQHandler(void)
 {
@@ -126,6 +126,8 @@ void USBD_IRQHandler(void)
 
             // control OUT
             USBD_CtrlOut();
+					
+						Change_LED_OnOff(); // add for led control
         }
 
         if (u32IntSts & USBD_INTSTS_EP2)
@@ -172,7 +174,6 @@ void EP2_Handler(void)  /* Interrupt IN handler */
 {
     g_u8EP2Ready = 1;
 }
-
 
 /*--------------------------------------------------------------------------*/
 /**
@@ -249,6 +250,8 @@ void HID_ClassRequest(void)
         {
             if (au8Buf[3] == 2)
             {
+								USBD_PrepareCtrlOut((uint8_t *)&LED_Status[0], 1);
+							
                 /* Request Type = Output */
                 USBD_SET_DATA1(EP1);
                 USBD_SET_PAYLOAD_LEN(EP1, au8Buf[6]);

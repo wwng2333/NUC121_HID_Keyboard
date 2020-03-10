@@ -481,6 +481,21 @@
               <FileType>1</FileType>
               <FilePath>StdDriver\src\clk.c</FilePath>
             </File>
+            <File>
+              <FileName>gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\StdDriver\src\gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>io_ctrl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\io_ctrl.c</FilePath>
+            </File>
+            <File>
+              <FileName>io_ctrl.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\io_ctrl.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
