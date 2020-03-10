@@ -8,7 +8,7 @@
  * @copyright (C) 2016 Nuvoton Technology Corp. All rights reserved.
  ******************************************************************************/
 #include <stdio.h>
-#include "NuMicro.h"
+#include "StdDriver\NUC121.h"
 #include "hid_kb.h"
 
 #define CRYSTAL_LESS    1
@@ -134,13 +134,16 @@ int32_t main(void)
     SYS_UnlockReg();
 
     SYS_Init();
-    UART0_Init();
+	
+    /**
+	UART0_Init();
 
     printf("\n");
     printf("+--------------------------------------------------------+\n");
     printf("|          NuMicro USB HID Keyboard Sample Code          |\n");
     printf("+--------------------------------------------------------+\n");
     printf("If PB.15 = 0, just report it is key 'a'.\n");
+	**/
 
     USBD_Open(&gsInfo, HID_ClassRequest, NULL);
 

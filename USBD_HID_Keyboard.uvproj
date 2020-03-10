@@ -424,12 +424,12 @@
             <File>
               <FileName>system_NUC121.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\Device\Nuvoton\NUC121\Source\system_NUC121.c</FilePath>
+              <FilePath>CMSIS\system_NUC121.c</FilePath>
             </File>
             <File>
               <FileName>startup_NUC121.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\..\Library\Device\Nuvoton\NUC121\Source\ARM\startup_NUC121.s</FilePath>
+              <FilePath>CMSIS\startup_NUC121.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -439,17 +439,17 @@
             <File>
               <FileName>descriptors.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\descriptors.c</FilePath>
+              <FilePath>descriptors.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\main.c</FilePath>
+              <FilePath>main.c</FilePath>
             </File>
             <File>
               <FileName>hid_kb.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\hid_kb.c</FilePath>
+              <FilePath>hid_kb.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -457,24 +457,29 @@
           <GroupName>Library</GroupName>
           <Files>
             <File>
+              <FileName>NUC121.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>StdDriver\NUC121.h</FilePath>
+            </File>
+            <File>
               <FileName>retarget.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\StdDriver\src\retarget.c</FilePath>
+              <FilePath>StdDriver\src\retarget.c</FilePath>
             </File>
             <File>
               <FileName>usbd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\StdDriver\src\usbd.c</FilePath>
+              <FilePath>StdDriver\src\usbd.c</FilePath>
             </File>
             <File>
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\StdDriver\src\sys.c</FilePath>
+              <FilePath>StdDriver\src\sys.c</FilePath>
             </File>
             <File>
               <FileName>clk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Library\StdDriver\src\clk.c</FilePath>
+              <FilePath>StdDriver\src\clk.c</FilePath>
             </File>
           </Files>
         </Group>

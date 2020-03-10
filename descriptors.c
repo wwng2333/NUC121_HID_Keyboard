@@ -9,8 +9,8 @@
 #define __DESCRIPTORS_C__
 
 /*!<Includes */
-#include "NuMicro.h"
-#include "usbd.h"
+#include "StdDriver\NUC121.h"
+#include "StdDriver\inc\usbd.h"
 #include "hid_kb.h"
 
 /*!<USB HID Report Descriptor */
