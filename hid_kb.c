@@ -13,6 +13,7 @@
 #include "hid_kb.h"
 #include "io_ctrl.h"
 
+volatile	uint8_t 	SetReport_flag = 0;				// 1= SetReport flag, 0= not
 volatile	uint8_t 	LED_Status[2] = {0};			// LED Status
 
 void USBD_IRQHandler(void)
@@ -127,7 +128,12 @@ void USBD_IRQHandler(void)
             // control OUT
             USBD_CtrlOut();
 					
-						Change_LED_OnOff(); // add for led control
+						if(SetReport_flag == 1)
+						{
+								SetReport_flag = 0;
+								Change_LED_OnOff(); // add for led control
+						}
+						
         }
 
         if (u32IntSts & USBD_INTSTS_EP2)
@@ -258,6 +264,8 @@ void HID_ClassRequest(void)
 
                 /* Status stage */
                 USBD_PrepareCtrlIn(0, 0);
+							
+								SetReport_flag = 1; //Set SetReport_flag
             }
 
             break;

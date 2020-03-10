@@ -63,8 +63,6 @@ void HID_Init(void);
 void HID_ClassRequest(void);
 void EP2_Handler(void);
 
-void Change_LED_OnOff(void); // add for num lock led control.
-
 #endif  /* __USBD_HID_H_ */
 
 /*** (C) COPYRIGHT 2016 Nuvoton Technology Corp. ***/

@@ -79,8 +79,8 @@
 000004  2102              MOVS     r1,#2
 000006  4803              LDR      r0,|L2.20|
 000008  f7fffffe          BL       GPIO_SetMode
-;;;36     	NUMLED = 1;
-00000c  2001              MOVS     r0,#1
+;;;36     	NUMLED = 0;
+00000c  2000              MOVS     r0,#0
 00000e  4902              LDR      r1,|L2.24|
 000010  6348              STR      r0,[r1,#0x34]
 ;;;37     

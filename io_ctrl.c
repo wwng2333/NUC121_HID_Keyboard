@@ -33,7 +33,7 @@ void Init_LED_Ctrl_IO(void)
 
 	/* Set PB.6 (NUMLED) as Output mode and High */
 	GPIO_SetMode(PC, BIT1, GPIO_MODE_OUTPUT);
-	NUMLED = 1;
+	NUMLED = 0;
 
 	/* Set PB.7 (SCRLED) as Output mode and High */
 	//GPIO_SetMode(PB, BIT7, GPIO_MODE_OUTPUT);
